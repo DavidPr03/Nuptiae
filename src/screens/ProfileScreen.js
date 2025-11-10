@@ -49,7 +49,7 @@ export default function ProfileScreen() {
       icon: <Languages size={24} color="#555" />,
       onPress: () => {
         setActiveMenu('idioma');
-        console.log('Idioma pressed');
+        navigation.navigate('Language');
       },
     },
     {
