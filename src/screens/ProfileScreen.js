@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, StatusBar } from 'react-native';
 import {
   VStack,
@@ -7,21 +7,58 @@ import {
   Avatar,
   AvatarImage,
   Pressable,
-  Icon,
 } from '@gluestack-ui/themed';
-import { ChevronLeft, User, Key, RotateCcw, Languages, Monitor, Home, FileText, CreditCard, Users } from 'lucide-react-native';
+import { ChevronLeft, User, Key, RotateCcw, Languages, Monitor } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileScreen({ route }) {
   const navigation = useNavigation();
   const { name, role, avatar, bgColor } = route.params;
+  const [userAvatar, setUserAvatar] = useState(avatar);
 
   const menuItems = [
-    { id: 'perfil', label: 'Perfil', icon: User, active: true },
-    { id: 'contrasena', label: 'Contraseña', icon: Key, active: false },
-    { id: 'actividad', label: 'Actividad', icon: RotateCcw, active: false },
-    { id: 'idioma', label: 'Idioma', icon: Languages, active: false },
-    { id: 'pantalla', label: 'Pantalla', icon: Monitor, active: false },
+    {
+      id: 'perfil',
+      label: 'Perfil',
+      icon: <User size={24} color="#FF7700" />, // naranja
+      active: true,
+      onPress: () =>
+        navigation.navigate('ProfileDetail', {
+          name,
+          role,
+          avatar: userAvatar,
+          username: 'usuario123',
+          bgColor,
+        }),
+    },
+    {
+      id: 'actividad',
+      label: 'Actividad',
+      icon: <RotateCcw size={24} color="#555" />, // gris
+      active: false,
+      onPress: () => console.log('Actividad pressed'),
+    },
+    {
+      id: 'notificaciones',
+      label: 'Notificaciones',
+      icon: <Key size={24} color="#555" />,
+      active: false,
+      onPress: () => console.log('Notificaciones pressed'),
+    },
+    {
+      id: 'idioma',
+      label: 'Idioma',
+      icon: <Languages size={24} color="#555" />,
+      active: false,
+      onPress: () => console.log('Idioma pressed'),
+    },
+    {
+      id: 'pantalla',
+      label: 'Pantalla',
+      icon: <Monitor size={24} color="#555" />,
+      active: false,
+      onPress: () => console.log('Pantalla pressed'),
+    },
   ];
 
   return (
@@ -30,32 +67,39 @@ export default function ProfileScreen({ route }) {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
         <VStack flex={1}>
           {/* Header */}
-          <HStack px="$4" py="$4" alignItems="center">
+          <HStack px={16} py={16} alignItems="center">
             <Pressable onPress={() => navigation.goBack()}>
-              <Icon as={ChevronLeft} size="xl" color="$textLight400" />
+              <ChevronLeft size={24} color="#999" />
             </Pressable>
           </HStack>
 
-          {/* Avatar y nombre dinámicos */}
-          <VStack alignItems="center" mb="$8">
-            <Avatar size="2xl" mb="$4" bg={bgColor}>
-              <AvatarImage source={{ uri: avatar }} alt={name} />
+          {/* Avatar y nombre */}
+          <VStack alignItems="center" mb={32}>
+            <Avatar size="2xl" mb={16} bg={bgColor}>
+              <AvatarImage source={{ uri: userAvatar }} alt={name} />
             </Avatar>
-            <Text fontSize="$xl" fontWeight="$semibold" color="$textLight900">
-              {name}
-            </Text>
-            <Text fontSize="$md" color="$textLight500" mt="$1">
-              {role}
-            </Text>
+            <Text fontSize={24} fontWeight="600" color="#111">{name}</Text>
+            <Text fontSize={16} color="#666" mt={4}>{role}</Text>
           </VStack>
 
           {/* Menu Items */}
-          <VStack flex={1} px="$4" space="xs">
+          <VStack flex={1} px={16} space={8}>
             {menuItems.map((item) => (
-              <Pressable key={item.id} onPress={() => console.log(`${item.label} pressed`)}>
-                <HStack alignItems="center" space="md" px="$4" py="$4" borderRadius="$full" bg={item.active ? '$orange100' : 'transparent'}>
-                  <Icon as={item.icon} size="lg" color={item.active ? '$orange800' : '$textLight700'} />
-                  <Text fontSize="$md" fontWeight={item.active ? '$medium' : '$normal'} color={item.active ? '$orange900' : '$textLight700'}>
+              <Pressable key={item.id} onPress={item.onPress}>
+                <HStack
+                  alignItems="center"
+                  space={16}
+                  px={16}
+                  py={16}
+                  borderRadius={999}
+                  style={{ backgroundColor: item.active ? '#FFE6CC' : 'transparent' }}
+                >
+                  {item.icon}
+                  <Text
+                    fontSize={16}
+                    fontWeight={item.active ? '500' : '400'}
+                    style={{ color: item.active ? '#e57373' : '#555' }}
+                  >
                     {item.label}
                   </Text>
                 </HStack>
