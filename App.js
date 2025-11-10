@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { GluestackUIProvider } from '@gluestack-ui/themed';
 import { config } from '@gluestack-ui/config';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
+import { enableScreens } from 'react-native-screens';
 
 export default function App() {
   return (
