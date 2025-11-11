@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
+import AgendaScreen from '../screens/AgendaScreen';
+import AddTareaScreen from '../screens/AddTareaScreen';
 import ProfileStack from './ProfileStack'; // Stack de Profile + Settings
 
 const Drawer = createDrawerNavigator();
@@ -25,15 +27,7 @@ function PlaceholderScreen({ route }) {
 function BottomTabs() {
   return (
     <Tab.Navigator
-      screenOptions={({ route, navigation }) => ({
-        headerLeft: () => (
-          <TouchableOpacity
-            onPress={() => navigation.openDrawer()}
-            style={{ marginLeft: 15 }}
-          >
-            <Ionicons name="menu" size={28} color="#000" />
-          </TouchableOpacity>
-        ),
+      screenOptions={({ route }) => ({
         headerTitle: '', // elimina el título
         tabBarShowLabel: false,
         tabBarStyle: { height: 70 },
@@ -49,7 +43,7 @@ function BottomTabs() {
       })}
     >
       <Tab.Screen name="Home" component={PlaceholderScreen} />
-      <Tab.Screen name="Agenda" component={PlaceholderScreen} />
+      <Tab.Screen name="Agenda" component={AgendaScreen} />
       <Tab.Screen name="Presupuesto" component={PlaceholderScreen} />
       <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
@@ -68,6 +62,17 @@ export default function DrawerNavigator() {
       }}
     >
       <Drawer.Screen name="Principal" component={BottomTabs} />
+      {/* Ruta oculta para agregar tarea (navegable desde TareasScreen) */}
+      <Drawer.Screen
+        name="AddTarea"
+        component={AddTareaScreen}
+        options={{
+          // esconder del drawer
+          drawerItemStyle: { height: 0 },
+          title: '',
+          headerShown: false,
+        }}
+      />
       <Drawer.Screen name="Invitados" component={PlaceholderScreen} />
       <Drawer.Screen name="Promos" component={PlaceholderScreen} />
       <Drawer.Screen name="Proveedores" component={PlaceholderScreen} />
