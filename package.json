@@ -20,8 +20,12 @@
     "@gluestack-ui/utils": "^3.0.7",
     "@gorhom/bottom-sheet": "^5.0.0-alpha.11",
     "@legendapp/motion": "^2.4.0",
+<<<<<<< HEAD
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/datetimepicker": "^8.5.0",
+=======
+    "@react-native-community/datetimepicker": "8.4.4",
+>>>>>>> 94f9884 (h)
     "@react-navigation/bottom-tabs": "^7.8.4",
     "@react-navigation/drawer": "^7.7.2",
     "@react-navigation/native": "^7.1.19",
@@ -29,7 +33,11 @@
     "@react-navigation/stack": "^7.6.2",
     "babel-plugin-module-resolver": "^5.0.2",
     "expo": "~54.0.10",
+<<<<<<< HEAD
     "expo-screen-orientation": "^9.0.7",
+=======
+    "expo-linear-gradient": "^15.0.7",
+>>>>>>> 94f9884 (h)
     "expo-status-bar": "~3.0.8",
     "lucide-react-native": "^0.510.0",
     "nativewind": "^4.1.23",
@@ -51,6 +59,7 @@
   "private": true,
   "devDependencies": {
     "@types/react": "~19.1.10",
+    "babel-preset-expo": "^54.0.7",
     "typescript": "~5.9.2"
   }
 }

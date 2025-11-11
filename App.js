@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { GluestackUIProvider } from '@gluestack-ui/themed';
@@ -12,5 +13,16 @@ export default function App() {
         <DrawerNavigator />
       </NavigationContainer>
     </GluestackUIProvider>
+=======
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./src/navigation/AppNavigator";
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+>>>>>>> 94f9884 (h)
   );
 }
