@@ -1,88 +1,97 @@
-import React, { useState, useEffect } from 'react';
+// src/screens/TareasScreen.js
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  useWindowDimensions,
-  Dimensions
+  Dimensions,
 } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function TareasScreen({ navigation, route }) {
-  const dimensions = useWindowDimensions();
-  const isLandscape = dimensions.width > dimensions.height;
+export default function TareasScreen({ navigation }) {
+  // estado inicial basado en dimensiones actuales
+  const window = Dimensions.get('window');
+  const [isLandscape, setIsLandscape] = useState(window.width > window.height);
 
-  // Estado explícito para forzar re-render cuando cambia orientación
-  const [orientation, setOrientation] = useState(isLandscape ? 'landscape' : 'portrait');
-
-  // Listener para cambios de dimensiones (más robusto en algunos dispositivos)
+  // Detectar rotación real del dispositivo
   useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({ window }) => {
-      const newIsLandscape = window.width > window.height;
-      setOrientation(newIsLandscape ? 'landscape' : 'portrait');
+      setIsLandscape(window.width > window.height);
     });
-
     return () => {
       subscription?.remove();
     };
   }, []);
 
+  // ✅ Permitir rotación solo aquí + ocultar header y tabs en landscape
+  useFocusEffect(
+    useCallback(() => {
+      const enableOrientation = async () => {
+        try {
+          await ScreenOrientation.unlockAsync();
+        } catch (err) {
+          console.warn('Error desbloqueando orientación:', err);
+        }
+      };
+
+      enableOrientation();
+
+      // 👇 Ajustar header y tabs dinámicamente
+      navigation.setOptions({
+        headerShown: !isLandscape, // Oculta header si está en landscape
+        tabBarStyle: isLandscape ? { display: 'none' } : {}, // Oculta tabs si landscape
+      });
+
+      return () => {
+        const lockPortrait = async () => {
+          try {
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+          } catch (err) {
+            console.warn('Error bloqueando orientación al salir:', err);
+          }
+        };
+
+        lockPortrait();
+
+        // Restaurar visibilidad cuando salgamos
+        navigation.setOptions({
+          headerShown: true,
+          tabBarStyle: {},
+        });
+      };
+    }, [isLandscape])
+  );
+
   const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: 'Buscar micrófonos',
-      priority: 'Urgente',
-      color: '#f08080',
-      completed: false,
-    },
-    {
-      id: 2,
-      title: 'Conseguir spot fotos',
-      priority: 'Puede esperar',
-      color: '#ffa500',
-      completed: false,
-    },
-    {
-      id: 3,
-      title: 'Confirmar juez civil',
-      priority: 'Urgente',
-      color: '#f08080',
-      completed: false,
-    },
-    {
-      id: 4,
-      title: 'Contratar proveedores',
-      priority: 'Importante',
-      color: '#ff6b6b',
-      completed: false,
-    },
-    {
-      id: 5,
-      title: 'Elegir fecha y lugar',
-      priority: 'Importante',
-      color: '#ff6b6b',
-      completed: false,
-    },
+    { id: 1, title: 'Buscar micrófonos', priority: 'Urgente', color: '#f08080', completed: false },
+    { id: 2, title: 'Conseguir spot fotos', priority: 'Puede esperar', color: '#ffa500', completed: false },
+    { id: 3, title: 'Confirmar juez civil', priority: 'Urgente', color: '#f08080', completed: false },
+    { id: 4, title: 'Contratar proveedores', priority: 'Importante', color: '#ff6b6b', completed: false },
+    { id: 5, title: 'Elegir fecha y lugar', priority: 'Importante', color: '#ff6b6b', completed: false },
   ]);
 
   const toggleTask = (id) => {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    setTasks(current =>
+      current.map(task =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
   };
 
   const handleAddTarea = (newTarea) => {
-    setTasks([...tasks, newTarea]);
+    setTasks(current => [...current, newTarea]);
   };
 
   const navigateToAddTarea = () => {
     const parentNav = navigation.getParent ? navigation.getParent() : null;
+
     if (parentNav && parentNav.navigate) {
       parentNav.navigate('AddTarea', { onAddTarea: handleAddTarea });
     } else {
-      // Fallback to local navigate
       navigation.navigate('AddTarea', { onAddTarea: handleAddTarea });
     }
   };
@@ -92,22 +101,20 @@ export default function TareasScreen({ navigation, route }) {
       style={[
         styles.taskItem,
         isLandscape && styles.taskItemLandscape,
-        item.completed && styles.taskItemCompleted
+        item.completed && styles.taskItemCompleted,
       ]}
       onPress={() => toggleTask(item.id)}
     >
       <View style={styles.taskContent}>
         <View style={[styles.priorityDot, { backgroundColor: item.color }]} />
         <View style={styles.taskTextContainer}>
-          <Text style={[
-            styles.taskTitle,
-            item.completed && styles.taskTitleCompleted
-          ]}>
+          <Text style={[styles.taskTitle, item.completed && styles.taskTitleCompleted]}>
             {item.title}
           </Text>
           <Text style={styles.priorityText}>{item.priority}</Text>
         </View>
       </View>
+
       <View style={styles.checkboxContainer}>
         {item.completed ? (
           <View style={styles.checkboxChecked}>
@@ -121,34 +128,29 @@ export default function TareasScreen({ navigation, route }) {
   );
 
   return (
-    <View style={styles.container}>
-      {/* Encabezado */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Tareas</Text>
-        <Text style={styles.taskCount}>
-          {tasks.filter(t => !t.completed).length} pendientes
-        </Text>
-      </View>
+    <View style={[styles.container, isLandscape && styles.containerLandscape]}>
+      {/* Encabezado (solo visible en portrait ahora) */}
+      {!isLandscape && (
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Tareas</Text>
+          <Text style={styles.taskCount}>
+            {tasks.filter(t => !t.completed).length} pendientes
+          </Text>
+        </View>
+      )}
 
-      {/* (debug removed) */}
-
-      {/* Lista de tareas */}
       <FlatList
+        key={isLandscape ? 'h' : 'v'} // Fuerza re-render cuando cambian columnas
         data={tasks}
-        key={orientation} // forzar re-render con listener de orientación
         renderItem={renderTaskItem}
-        keyExtractor={item => item.id.toString()}
-        scrollEnabled={!isLandscape}
+        keyExtractor={(item) => item.id.toString()}
         numColumns={isLandscape ? 2 : 1}
         contentContainerStyle={styles.listContent}
         columnWrapperStyle={isLandscape ? styles.columnWrapper : undefined}
       />
 
-      {/* Botón flotante para agregar tarea */}
-      <TouchableOpacity 
-        style={styles.fab}
-        onPress={navigateToAddTarea}
-      >
+      {/* Botón flotante */}
+      <TouchableOpacity style={[styles.fab, isLandscape && styles.fabLandscape]} onPress={navigateToAddTarea}>
         <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -159,6 +161,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  containerLandscape: {
+    paddingTop: 10,
   },
   header: {
     paddingHorizontal: 20,
@@ -198,16 +203,15 @@ const styles = StyleSheet.create({
   },
   taskItemLandscape: {
     width: '48%',
-    marginHorizontal: 5,
   },
   taskItemCompleted: {
     backgroundColor: '#f5f5f5',
     opacity: 0.6,
   },
   taskContent: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   priorityDot: {
     width: 10,
@@ -261,9 +265,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+  },
+  fabLandscape: {
+    bottom: 15,
+    right: 15,
   },
 });

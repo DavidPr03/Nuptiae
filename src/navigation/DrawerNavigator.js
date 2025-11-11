@@ -59,6 +59,7 @@ export default function DrawerNavigator() {
         headerTintColor: '#fff',
         drawerActiveTintColor: '#680b0bff',
         drawerLabelStyle: { fontSize: 16, fontWeight: '500' },
+        
       }}
     >
       <Drawer.Screen name="Principal" component={BottomTabs} />
